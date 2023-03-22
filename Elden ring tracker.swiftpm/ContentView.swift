@@ -1,34 +1,34 @@
-import UIKit
 import SwiftUI
 
-class ViewController: UIViewController, UIScrollViewDelegate {
+struct ContentView: View {
+    @State private var hasOffset = false
+    @GestureState var dragOffset = CGSize.zero // CGSize A structure that contains width and height values.
+    @State var position = CGSize.zero
     
-    @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet weak var imageView: UIImageView!
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    var body: some View {
+        // @State var GoodThing1: String = ""
         
-        scrollView.delegate = self
-        scrollView.minimumZoomScale = 1.0
-        scrollView.maximumZoomScale = 6.0
-        scrollView.contentSize = imageView.frame.size
         
-        let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap))
-        doubleTapRecognizer.numberOfTapsRequired = 2
-        scrollView.addGestureRecognizer(doubleTapRecognizer)
-    }
-    
-    @objc func handleDoubleTap(recognizer: UITapGestureRecognizer) {
-        if (scrollView.zoomScale > scrollView.minimumZoomScale) {
-            scrollView.setZoomScale(scrollView.minimumZoomScale, animated: true)
-        } else {
-            scrollView.setZoomScale(scrollView.maximumZoomScale, animated: true)
+        VStack{
+            
+            Image("MAP")
+                .offset(x: position.width + dragOffset.width, y: position.height + dragOffset.height)
+                .gesture(
+                    DragGesture()
+                        .updating($dragOffset, body: { (value, state, transaction) in
+                            
+                            state = value.translation
+                        })
+                        .onEnded({ (value) in // Remove this section and it will go back to where it starts
+                            self.position.height += value.translation.height
+                            self.position.width += value.translation.width
+                            print("height",position.height) // So you can see coordinates
+                            print("width",position.width)
+                        })
+                )
+            
+            
         }
-    }
-    
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return imageView
     }
 }
 
